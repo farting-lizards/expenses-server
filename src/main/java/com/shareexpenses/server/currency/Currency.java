@@ -1,7 +1,7 @@
 package com.shareexpenses.server.currency;
 
 public enum Currency {
-  EURO("EUR"),
+  EUR("EUR"),
   CHF("CHF");
 
   public final String label;
