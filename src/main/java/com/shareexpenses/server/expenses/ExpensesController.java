@@ -22,5 +22,16 @@ public class ExpensesController {
   public Expense addExpense(@RequestBody IncomingExpenseDTO incomingExpenseDTO) {
     return this.expensesService.addExpense(incomingExpenseDTO);
   }
+
+  @PutMapping("/{expenseId}")
+  public Expense updateExpense(@PathVariable long expenseId, @RequestBody IncomingExpenseDTO incomingExpenseDTO) {
+    return this.expensesService.updateExpense(expenseId, incomingExpenseDTO);
+  }
+
+  @DeleteMapping("/{expenseId}")
+  public long deleteExpense(@PathVariable long expenseId) {
+    this.expensesService.deleteExpense(expenseId);
+    return expenseId;
+  }
 }
 

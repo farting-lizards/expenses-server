@@ -45,4 +45,28 @@ public class ExpensesService {
       .build();
     return this.expensesRepository.save(expense);
   }
+
+  public Expense updateExpense(Long id, IncomingExpenseDTO updatedExpense) {
+    Account account = this
+      .accountRepository
+      .findById(updatedExpense.getAccountId())
+      .orElseThrow(() -> new EntityNotFoundException("No account found with id " + updatedExpense.getAccountId() + "."));
+
+    Expense expense = Expense
+      .builder()
+      .id(id)
+      .description(updatedExpense.getDescription())
+      .amount(updatedExpense.getAmount())
+      .currency(updatedExpense.getCurrency().label)
+      .timestamp(updatedExpense.getTimestamp())
+      .account(account)
+      .category(updatedExpense.getCategory())
+      .build();
+    return this.expensesRepository.save(expense);
+  }
+
+  public void deleteExpense(long expenseId) {
+    Expense expense = this.expensesRepository.findById(expenseId).orElseThrow(() -> new EntityNotFoundException("No expense found with id " + expenseId + "."));
+    this.expensesRepository.delete(expense);
+  }
 }
