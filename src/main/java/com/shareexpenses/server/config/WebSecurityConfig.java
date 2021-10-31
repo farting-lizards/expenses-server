@@ -9,6 +9,8 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 @Configuration
@@ -16,10 +18,9 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        // TODO: Read from application properties
         http
             .authorizeRequests()
-            .antMatchers("/api")
+            .antMatchers("/api/**")
                 .authenticated()
             .anyRequest()
                 .permitAll()
@@ -36,9 +37,8 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     @Override
     public UserDetailsService userDetailsService() {
         UserDetails user =
-            User.withDefaultPasswordEncoder()
-                .username("username")
-                .password("password")
+            User.withUsername("fartinglizards")
+                .password("{bcrypt}$2a$10$0dMlY0kKX13M4T/mBtitB.ydSNtvZkTzJ2Fi9NDAsXK6JCpFtYCb6")
                 .roles("USER")
                 .build();
 
