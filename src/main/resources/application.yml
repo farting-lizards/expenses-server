@@ -1,0 +1,13 @@
+spring:
+  profiles:
+    active: "local"
+    include:
+      - "accounts"
+  jpa:
+    hibernate.ddl-auto: "update"
+    database: "mysql"
+  datasource:
+    url: "jdbc:mysql://localhost:3306/expenses"
+    username: "expenses"
+    password: "GMtC40W8R*9IQt^l9"
+  data.rest.basePath: "/api"

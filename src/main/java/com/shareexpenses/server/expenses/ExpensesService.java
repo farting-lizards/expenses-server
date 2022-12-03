@@ -2,28 +2,29 @@ package com.shareexpenses.server.expenses;
 
 import com.shareexpenses.server.account.Account;
 import com.shareexpenses.server.account.AccountRepository;
-import com.shareexpenses.server.currency.Currency;
+import com.shareexpenses.server.config.AccountsConfig;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
-import java.time.Instant;
-import java.time.LocalTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 @RequiredArgsConstructor
 public class ExpensesService {
 
   private final ExpensesRepository expensesRepository;
   private final AccountRepository accountRepository;
 
+  @Autowired
+  AccountsConfig accountConfig;
+
   public List<Expense> getAllExpenses() {
+    log.warn("Config file accounts={}", accountConfig.accounts);
     return expensesRepository.findAll();
   }
 

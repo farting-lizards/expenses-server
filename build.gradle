@@ -37,3 +37,10 @@ dependencies {
 test {
 	useJUnitPlatform()
 }
+
+
+bootRun {
+	jvmArgs = [
+		"-Dspring.config.additional-location=file:../home-lab-secrets/home_automation/expenses/"
+	]
+}
