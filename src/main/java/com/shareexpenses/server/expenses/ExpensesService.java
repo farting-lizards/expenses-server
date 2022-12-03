@@ -24,7 +24,9 @@ public class ExpensesService {
   AccountsConfig accountConfig;
 
   public List<Expense> getAllExpenses() {
-    log.warn("Config file accounts={}", accountConfig.accounts);
+    accountConfig.accounts.forEach(accountConfig1 -> {
+      log.warn("Account profile {}", accountConfig1.getProfileId());
+    });
     return expensesRepository.findAll();
   }
 

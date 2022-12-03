@@ -1,7 +1,6 @@
 package com.shareexpenses.server.config;
 
 import java.util.List;
-import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
@@ -14,5 +13,5 @@ import lombok.Setter;
 @ConfigurationProperties(prefix="accounts-config")
 @Setter
 public class AccountsConfig {
-   public List<Map<String, String>> accounts;
+   public List<AccountConfig> accounts;
 }
