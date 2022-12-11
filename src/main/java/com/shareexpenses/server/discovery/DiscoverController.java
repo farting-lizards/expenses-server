@@ -18,7 +18,7 @@ public class DiscoverController {
     @Autowired WiseService wiseService;
 
     @GetMapping
-    public void discoverExpenses() {
-        wiseService.discoverExpensesBetween();
+    public int discoverExpenses() {
+        return wiseService.discoverExpensesBetween();
     }
 }

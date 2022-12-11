@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.io.Serializable;
+import java.util.Optional;
 
 @Setter
 @Getter
@@ -17,15 +18,15 @@ public class Transaction implements Serializable {
     @Setter
     @Getter
     @NoArgsConstructor
-    private static class Amount implements Serializable {
-        private Double value;
+    public static class Amount implements Serializable {
+        private Float value;
         private String currency;
     }
 
     @Getter
     @Setter
     @NoArgsConstructor
-    private static class Details implements Serializable {
+    public static class Details implements Serializable {
         private String category;
         private String description;
         private Merchant merchant;
@@ -34,7 +35,7 @@ public class Transaction implements Serializable {
     @Getter
     @Setter
     @NoArgsConstructor
-    private static class Merchant implements Serializable {
+    public static class Merchant implements Serializable {
         private String name;
     }
 }

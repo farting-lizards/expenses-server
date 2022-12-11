@@ -3,6 +3,8 @@ package com.shareexpenses.server.discovery;
 import com.shareexpenses.server.config.AccountsConfig;
 import com.shareexpenses.server.discovery.wise_entities.Balance;
 import com.shareexpenses.server.discovery.wise_entities.BalanceStatement;
+import com.shareexpenses.server.discovery.wise_entities.Transaction;
+import com.shareexpenses.server.utils.DateTimeUtils;
 import com.shareexpenses.server.utils.DigitalSignatures;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -19,17 +21,25 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
 @Service
 public class WiseService {
 
+    @Autowired
+    private ExpenseInReviewRepository expensesInReviewQueue;
+
+    @Autowired
+    private DateTimeUtils dateTimeUtils;
     private static final String WISE_BASE_URL = "https://api.transferwise.com/";
 
     @Autowired
     AccountsConfig accountsConfig;
 
-    public void discoverExpensesBetween() {
+    public int discoverExpensesBetween() {
+        AtomicInteger newTransactions = new AtomicInteger();
+
         accountsConfig.accounts.forEach(account -> {
             String balanceUrl = getBalancesForProfile(account.getProfileId());
 
@@ -43,7 +53,7 @@ public class WiseService {
 
             Arrays.asList(wiseBalancesResp.getBody()).forEach(wiseBalance -> {
                 log.info("Wise Balance {} owner {}", wiseBalance.getId(), account.getOwner());
-                getStatementForBalanceId(
+                var count = getStatementForBalanceId(
                     account.getProfileId(),
                     wiseBalance.getId(),
                     "2022-12-01",
@@ -51,12 +61,14 @@ public class WiseService {
                     account.getApiBearerToken(),
                    account.getPrivateKey()
                 );
+                newTransactions.getAndAdd(count);
             });
         });
+        return newTransactions.get();
     }
 
     @SneakyThrows
-    private void getStatementForBalanceId(String profileId, String balanceId, String from, String to, String bearerToken, String privateKey) {
+    private int getStatementForBalanceId(String profileId, String balanceId, String from, String to, String bearerToken, String privateKey) {
         String statementUrl = getBalanceStatementUrl(profileId, balanceId, from, to);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + bearerToken);
@@ -71,7 +83,7 @@ public class WiseService {
         template.setErrorHandler(new Wise2faErrorHandler());
         HttpEntity request = new HttpEntity(headers);
 
-        ResponseEntity<Object> maybeBalanceStatement = template.exchange(statementUrl, HttpMethod.GET, request, Object.class, params);
+        ResponseEntity<BalanceStatement> maybeBalanceStatement = template.exchange(statementUrl, HttpMethod.GET, request, BalanceStatement.class, params);
 
         if (maybeBalanceStatement.getStatusCode() == HttpStatus.FORBIDDEN) {
             String x2faApprovalHeader = maybeBalanceStatement.getHeaders().getFirst("x-2fa-approval");
@@ -90,15 +102,43 @@ public class WiseService {
             ResponseEntity<BalanceStatement> balanceStatement = authTemplate.exchange(statementUrl, HttpMethod.GET, authRequest, BalanceStatement.class, params);
             log.info("Balance Statement after 2fa approval {}", balanceStatement.getBody());
 
+            AtomicInteger newUnreviewedTransactions = new AtomicInteger();
             balanceStatement.getBody().getTransactions().forEach(wiseTransaction -> {
+
+                if(isCreditTransaction(wiseTransaction) || expensesInReviewQueue.existsById(wiseTransaction.getReferenceNumber())) {
+                    // We can ignore the `wiseTransaction` if it represents a credit (money added to TW account) or if it is already added in the expensesInReview table.
+                    return;
+                }
+
+                ExpenseInReview expenseInReview = ExpenseInReview.builder()
+                    .externalId(wiseTransaction.getReferenceNumber())
+                    .date(dateTimeUtils.unixTimestampFromISOString(wiseTransaction.getDate()))
+                    .amount(Math.abs(wiseTransaction.getAmount().getValue()))
+                    .currency(wiseTransaction.getAmount().getCurrency())
+                    .externalCategory(wiseTransaction.getDetails().getCategory())
+                    .description(wiseTransaction.getDetails().getDescription())
+                    .merchantName(wiseTransaction.getDetails().getMerchant() == null
+                        ? null
+                        : wiseTransaction.getDetails().getMerchant().getName()
+                    )
+                    .reviewUntil(null)
+                    .build();
+
+                expensesInReviewQueue.save(expenseInReview);
+                newUnreviewedTransactions.getAndIncrement();
                 log.info("Wise transaction {}", wiseTransaction.getReferenceNumber());
             });
-
+            return newUnreviewedTransactions.get();
         } else if (maybeBalanceStatement.getStatusCode() == HttpStatus.OK || maybeBalanceStatement.getStatusCode() == HttpStatus.CREATED) {
             log.info("Balance statement without 2fa approval {}", maybeBalanceStatement.getBody());
         } else {
             log.warn("There was an error fetching balance statement {}", maybeBalanceStatement.getStatusCode());
         }
+        return 0;
+    }
+
+    private boolean isCreditTransaction(Transaction wiseTransaction) {
+        return wiseTransaction.getType().equalsIgnoreCase("credit");
     }
 
     class Wise2faErrorHandler extends DefaultResponseErrorHandler {
