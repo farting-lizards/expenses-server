@@ -21,6 +21,9 @@ public class ExpenseInReview {
     private String externalId;
 
     @Column(nullable = false)
+    private Long accountId;
+
+    @Column(nullable = false)
     private Timestamp date;
 
     @Column

@@ -11,6 +11,7 @@ public class AccountConfig {
     String owner;
     String type;
     String profileId;
+    Long accountId;
     String apiBearerToken;
     String privateKey;
 }

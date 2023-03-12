@@ -65,11 +65,12 @@ public class WiseService {
                 log.info("Wise Balance {} owner {}", wiseBalance.getId(), account.getOwner());
                 var count = getStatementForBalanceId(
                     account.getProfileId(),
+                    account.getAccountId(),
                     wiseBalance.getId(),
                     fromDate,
                     toDate,
                     account.getApiBearerToken(),
-                   account.getPrivateKey()
+                    account.getPrivateKey()
                 );
                 newTransactions.getAndAdd(count);
             });
@@ -79,7 +80,7 @@ public class WiseService {
 
     // YYYY-MM-DD or  YYYY-MM-DD HH:MM:SS or TImestamp
     @SneakyThrows
-    private int getStatementForBalanceId(String profileId, String balanceId, String from, String to, String bearerToken, String privateKey) {
+    private int getStatementForBalanceId(String profileId, Long accountId, String balanceId, String from, String to, String bearerToken, String privateKey) {
         String statementUrl = getBalanceStatementUrl(profileId, balanceId, from, to);
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + bearerToken);
@@ -130,6 +131,7 @@ public class WiseService {
 
                 ExpenseInReview expenseInReview = ExpenseInReview.builder()
                     .externalId(wiseTransaction.getReferenceNumber())
+                    .accountId(accountId)
                     .date(dateTimeUtils.unixTimestampFromISOString(wiseTransaction.getDate()))
                     .amount(Math.abs(wiseTransaction.getAmount().getValue()))
                     .currency(wiseTransaction.getAmount().getCurrency())

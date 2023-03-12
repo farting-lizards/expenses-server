@@ -9,5 +9,5 @@ spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/expenses"
     username: "expenses"
-    password: "dummypass"
+    password: "GMtC40W8R*9IQt^l9"
   data.rest.basePath: "/api"
