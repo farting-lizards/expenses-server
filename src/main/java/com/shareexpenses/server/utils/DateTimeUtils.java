@@ -3,9 +3,7 @@ package com.shareexpenses.server.utils;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.sql.Timestamp;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
@@ -22,8 +20,26 @@ public class DateTimeUtils {
         return dateTimeFormatter;
     }
 
+
     @SneakyThrows
     public Timestamp unixTimestampFromISOString(String isoDate) {
         return new Timestamp(getDateTimeFormatter().parse(isoDate).getTime());
+    }
+
+    /**
+     * Converts a date of format "YYYY-MM-DD" to a timestamp after adding timing info (always 00:00:00) to it.
+     */
+    public Timestamp timestampFromDateStringWithoutTime(String isoDate) {
+        return Timestamp.valueOf(isoDate + " 00:00:00");
+    }
+
+    /**
+     * Adds time (and UTC timezone) to a date string without time.
+     *
+     * @param isoDate - format 'YYYY-MM-DD'
+     * @return UTC date string - format 'YYYY-MM-DDT00:00:00.000Z'
+     */
+    public String dateStringToWiseString(String isoDate) {
+        return isoDate + "T00:00:00.000Z";
     }
 }

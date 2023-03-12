@@ -17,8 +17,9 @@ public class DiscoverController {
 
     @Autowired WiseService wiseService;
 
+    // dates are in format 'YYYY-MM-DD' (i.e., no time info is provided)
     @GetMapping
-    public int discoverExpenses() {
-        return wiseService.discoverExpensesBetween();
+    public int discoverExpenses(@RequestParam String fromDate, @RequestParam String toDate) {
+        return wiseService.discoverExpensesBetween(fromDate, toDate);
     }
 }

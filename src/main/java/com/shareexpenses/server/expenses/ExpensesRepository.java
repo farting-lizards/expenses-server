@@ -5,4 +5,6 @@ import java.util.List;
 
 public interface ExpensesRepository extends JpaRepository<Expense, Long>  {
   List<Expense> findAll();
+
+  boolean existsByExternalId(String externalId);
 }

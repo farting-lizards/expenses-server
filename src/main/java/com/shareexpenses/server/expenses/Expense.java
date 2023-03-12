@@ -20,6 +20,9 @@ public class Expense  {
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "expense_sequence")
   private Long id;
 
+  @Column
+  private String externalId;
+
   @Column(nullable = false)
   private Double amount;
 

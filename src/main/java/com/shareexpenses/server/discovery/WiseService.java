@@ -4,6 +4,7 @@ import com.shareexpenses.server.config.AccountsConfig;
 import com.shareexpenses.server.discovery.wise_entities.Balance;
 import com.shareexpenses.server.discovery.wise_entities.BalanceStatement;
 import com.shareexpenses.server.discovery.wise_entities.Transaction;
+import com.shareexpenses.server.expenses.ExpensesRepository;
 import com.shareexpenses.server.utils.DateTimeUtils;
 import com.shareexpenses.server.utils.DigitalSignatures;
 import lombok.SneakyThrows;
@@ -14,9 +15,9 @@ import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
-
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.sql.Timestamp;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,14 +32,23 @@ public class WiseService {
     private ExpenseInReviewRepository expensesInReviewQueue;
 
     @Autowired
+    private ExpensesRepository expensesRepository;
+
+    @Autowired
     private DateTimeUtils dateTimeUtils;
     private static final String WISE_BASE_URL = "https://api.transferwise.com/";
 
     @Autowired
     AccountsConfig accountsConfig;
 
-    public int discoverExpensesBetween() {
+    public int discoverExpensesBetween(String fromDate, String toDate) {
         AtomicInteger newTransactions = new AtomicInteger();
+
+        Timestamp fromTimestamp = dateTimeUtils.timestampFromDateStringWithoutTime(fromDate);
+        Timestamp toTimestamp = dateTimeUtils.timestampFromDateStringWithoutTime(toDate);
+
+        // fromDate should be before or equal to the toDate
+        assert (fromTimestamp.before(toTimestamp));
 
         accountsConfig.accounts.forEach(account -> {
             String balanceUrl = getBalancesForProfile(account.getProfileId());
@@ -56,8 +66,8 @@ public class WiseService {
                 var count = getStatementForBalanceId(
                     account.getProfileId(),
                     wiseBalance.getId(),
-                    "2022-12-01",
-                    "2022-12-05",
+                    fromDate,
+                    toDate,
                     account.getApiBearerToken(),
                    account.getPrivateKey()
                 );
@@ -67,6 +77,7 @@ public class WiseService {
         return newTransactions.get();
     }
 
+    // YYYY-MM-DD or  YYYY-MM-DD HH:MM:SS or TImestamp
     @SneakyThrows
     private int getStatementForBalanceId(String profileId, String balanceId, String from, String to, String bearerToken, String privateKey) {
         String statementUrl = getBalanceStatementUrl(profileId, balanceId, from, to);
@@ -75,8 +86,8 @@ public class WiseService {
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
         Map<String, String> params = new HashMap<>();
-        params.put("fromTime", "2022-10-01T00:00:00.000Z");
-        params.put("toTime", "2022-10-10T00:00:00.000Z");
+        params.put("fromTime", dateTimeUtils.dateStringToWiseString(from));
+        params.put("toTime", dateTimeUtils.dateStringToWiseString(to));
         params.put("type", "COMPACT");
 
         RestTemplate template = new RestTemplate();
@@ -103,10 +114,17 @@ public class WiseService {
             log.info("Balance Statement after 2fa approval {}", balanceStatement.getBody());
 
             AtomicInteger newUnreviewedTransactions = new AtomicInteger();
-            balanceStatement.getBody().getTransactions().forEach(wiseTransaction -> {
 
-                if(isCreditTransaction(wiseTransaction) || expensesInReviewQueue.existsById(wiseTransaction.getReferenceNumber())) {
-                    // We can ignore the `wiseTransaction` if it represents a credit (money added to TW account) or if it is already added in the expensesInReview table.
+            balanceStatement.getBody().getTransactions().forEach(wiseTransaction -> {
+                log.info("Checking wise transaction {}", wiseTransaction.getReferenceNumber());
+
+                if(isCreditTransaction(wiseTransaction)
+                    || expensesInReviewQueue.existsById(wiseTransaction.getReferenceNumber())
+                    || expensesRepository.existsByExternalId(wiseTransaction.getReferenceNumber())
+                ) {
+                    // We can ignore the `wiseTransaction` if it represents a credit (money added to TW account)
+                    // or if it is already added in the expensesInReview table
+                    // or an expense already exists with same externalId
                     return;
                 }
 
@@ -128,12 +146,15 @@ public class WiseService {
                 newUnreviewedTransactions.getAndIncrement();
                 log.info("Wise transaction {}", wiseTransaction.getReferenceNumber());
             });
+
             return newUnreviewedTransactions.get();
+
         } else if (maybeBalanceStatement.getStatusCode() == HttpStatus.OK || maybeBalanceStatement.getStatusCode() == HttpStatus.CREATED) {
             log.info("Balance statement without 2fa approval {}", maybeBalanceStatement.getBody());
         } else {
             log.warn("There was an error fetching balance statement {}", maybeBalanceStatement.getStatusCode());
         }
+
         return 0;
     }
 

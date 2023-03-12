@@ -21,7 +21,7 @@ public class ExpenseInReview {
     private String externalId;
 
     @Column(nullable = false)
-        private Timestamp date;
+    private Timestamp date;
 
     @Column
     private Timestamp reviewUntil;
