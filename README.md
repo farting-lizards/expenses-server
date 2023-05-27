@@ -4,20 +4,33 @@ You'll need java 11 jdk installed, on fedora:
 
 > sudo dnf install java-11-openjdk-devel
 
+### Installing java 11
 
-### Running it locally
-You will need a mariadb/mysql instance running on localhost, you can run something like:
+In case you have multiple versions of java installed, you will have to configure your
+system to use java 11. The following java tools will have to be updated:
 
-    sudo podman run \
-        --name expenses_db \
-        --detach \
-        -p 3306:3306 \
-        --rm \
-        --env MARIADB_DATABASE=expenses \
-        --env MARIADB_USER=expenses \
-        --env 'MARIADB_PASSWORD=GMtC40W8R*9IQt^l9' \
-        --env MYSQL_RANDOM_ROOT_PASSWORD=true \
-        mariadb:latest
+```bash
+# find java tools that need to be configured to use version 11
+$ sudo alternatives --list | grep java | grep manual
+java_sdk_openjdk        manual  /usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.fc38.x86_64
+jre_openjdk             manual  /usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.fc38.x86_64
+java                    manual  /usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.fc38.x86_64/bin/java
+javac                   manual  /usr/lib/jvm/java-11-openjdk-11.0.19.0.7-1.fc38.x86_64/bin/javac
+```
+This is how you can configure the above java tools to use version 11
+```bash
+$ for alternative in $(sudo alternatives --list | grep java | awk '{print $1}' | grep -v '\(17\|11\)'); do sudo alternatives --config "$alternative"; done
+```
 
-Then you can run the application with:
-> ./gradlew bootRun
+### Running the server locally
+
+1. Start the database locally - Simply run the following script to start the server. The script also populates the database with some dummy data:
+> Make sure you are in the root directory of this project to run the following command.
+```bash
+$ sudo ./scripts/start_devdb.sh populate
+```
+
+2. Start the server locally - You can either use the "Run" button of your IDE (such as intellij) to run the server application or run the following command:
+```bash
+./gradlew bootRun
+```

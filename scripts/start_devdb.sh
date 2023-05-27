@@ -5,7 +5,10 @@ set -o nounset
 set -o pipefail
 
 hash podman && DOCKER=podman || DOCKER=docker
-
+hash mysql || {
+  echo "Unable to find a mysql client. Please install one, using a command such as:"
+  echo "sudo dnf install mariadb"
+}
 
 check_if_db_alive() {
     mysql \
@@ -43,7 +46,7 @@ start_mariadb() {
             echo "You might want to try running with sudo :/"
             return 1
         fi
-        echo "Checking againg in 5s..."
+        echo "Checking again in 5s..."
         sleep 5
     done
     return 0
