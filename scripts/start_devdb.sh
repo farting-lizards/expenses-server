@@ -4,6 +4,8 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+hash podman && DOCKER=podman || DOCKER=docker
+
 
 check_if_db_alive() {
     mysql \
@@ -21,8 +23,8 @@ check_if_db_alive() {
 
 start_mariadb() {
     local name="expenses_devdb"
-    docker rm -f "$name" || :
-    docker run \
+    $DOCKER rm -f "$name" || :
+    $DOCKER run \
         --name="$name" \
         --detach \
         --publish=3306:3306 \
@@ -38,6 +40,7 @@ start_mariadb() {
         count=$((count + 1))
         if [[ $count -ge 5 ]]; then
             echo "The db container never came up!"
+            echo "You might want to try running with sudo :/"
             return 1
         fi
         echo "Checking againg in 5s..."
@@ -57,6 +60,18 @@ create_db() {
         < db/schema.sql
 }
 
+populate_db() {
+    echo "populating with dummy data"
+    mysql \
+        --host 127.0.0.1 \
+        --port 3306 \
+        --protocol=tcp \
+        --user expenses \
+        --password='dummypass' \
+        expenses \
+        < db/fake_data.sql
+}
+
 
 
 main() {
@@ -64,6 +79,9 @@ main() {
     create_db
     echo "Your development db is now ready, you can access it with:"
     echo "    mysql --host=127.0.0.1 --port=3306 --protocol=tcp --user=expenses --password=dummypass expenses"
+    if [[ $1 == "populate" ]]; then
+        populate_db
+    fi
 }
 
 

@@ -41,7 +41,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
-INSERT INTO `expenses` VALUES (2,29.90,'EUR','2021-08-14 00:00:00','eating-out','Pizza',1),(3,4.10,'EUR','2021-08-14 00:00:00','eating-out','Pain au Chocolat',1),(4,38.99,'EUR','2021-08-13 00:00:00','groceries','Grand frais',1)
+INSERT INTO `expenses` VALUES (2,29.90,'EUR','2021-08-14 00:00:00','eating-out','Pizza',1),(3,4.10,'EUR','2021-08-14 00:00:00','eating-out','Pain au Chocolat',1),(4,38.99,'EUR','2021-08-13 00:00:00','groceries','Grand frais',1);
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
