@@ -21,5 +21,5 @@ $DOCKER run \
     expenses-server:dev \
     "/src/gradlew"\
     "bootRun" \
-    "--args='--spring.datasource.url=jdbc:mysql://$(hostname -i | grep -Po '192.168.1.\w*($| )'):3306/expenses'" \
+    "--args='--spring.datasource.url=jdbc:mysql://$(hostname -i | grep -Po '192.168.1.\w*(?:$| )'):3306/expenses'" \
     "$@"
