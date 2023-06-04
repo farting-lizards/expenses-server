@@ -82,7 +82,7 @@ main() {
     create_db
     echo "Your development db is now ready, you can access it with:"
     echo "    mysql --host=127.0.0.1 --port=3306 --protocol=tcp --user=expenses --password=dummypass expenses"
-    if [[ $1 == "populate" ]]; then
+    if [[ ${1:-""} == "populate" ]]; then
         populate_db
     fi
 }

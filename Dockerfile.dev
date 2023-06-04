@@ -1,7 +1,6 @@
 # FROM --platform=arm64 docker.io/library/gradle:jdk11
 # In dev we use x86, in prod we use arm64 (raspberry)
 FROM docker.io/library/gradle:jdk11
-#VOLUME . /src
 EXPOSE 8080/tcp
 USER 1000
 WORKDIR /src
