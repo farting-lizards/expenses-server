@@ -15,10 +15,11 @@ $DOCKER run \
     --interactive \
     --volume $PWD:/src:rw,idmap \
     --volume $PWD/../home-lab-secrets/:/home-lab-secrets:rw,idmap \
-    --publish-all \
+    --publish  8080:8080 \
     --name expenses-server-dev \
     --rm \
     expenses-server:dev \
     "/src/gradlew"\
     "bootRun" \
+    "--args='--spring.datasource.url=jdbc:mysql://$(hostname -i):3306/expenses'" \
     "$@"
