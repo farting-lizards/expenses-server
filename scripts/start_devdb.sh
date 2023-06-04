@@ -4,7 +4,7 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
-hash podman && DOCKER=podman || DOCKER=docker
+hash podman && DOCKER="sudo podman" || DOCKER=docker
 hash mysql || {
   echo "Unable to find a mysql client. Please install one, using a command such as:"
   echo "sudo dnf install mariadb"

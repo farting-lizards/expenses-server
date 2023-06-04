@@ -21,7 +21,7 @@
 
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
-INSERT INTO `accounts` VALUES (0,'fake account 1'),(1,'fake account 2');
+INSERT INTO `accounts` VALUES (0,'fake account 1'),(1,'fake account 2'),(2,'fake account 3'),(3,'fake account 4');
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -41,7 +41,7 @@ UNLOCK TABLES;
 
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
-INSERT INTO `expenses` VALUES (2,29.90,'EUR','2021-08-14 00:00:00','eating-out','Pizza',1),(3,4.10,'EUR','2021-08-14 00:00:00','eating-out','Pain au Chocolat',1),(4,38.99,'EUR','2021-08-13 00:00:00','groceries','Grand frais',1);
+INSERT INTO `expenses` VALUES (2,29.90,'EUR','2021-08-14 00:00:00','eating-out','Pizza',1, NULL),(3,4.10,'EUR','2021-08-14 00:00:00','eating-out','Pain au Chocolat',1, "somedummyexternalid"),(4,38.99,'EUR','2021-08-13 00:00:00','groceries','Grand frais',1, NULL);
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
