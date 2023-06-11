@@ -1,0 +1,31 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Podman
+        run: |
+          sudo apt update
+          sudo apt-get -y install podman
+      - name: Get source
+        uses: actions/checkout@v3
+        with:
+          path: "expenses-server"
+      - name: start app
+        run: |
+          cd expenses-server
+          ./scripts/start_devdb.sh populate
+
+          # fake accoutns config
+          mkdir -p ../home-lab-secrets/home_automation/expenses/
+          echo "accounts-config: {'accounts': []}" > ../home-lab-secrets/home_automation/expenses/application-accounts.yml
+
+          podman run --rm mariadb 
+          ./scripts/start_dev.sh
