@@ -8,6 +8,7 @@ hash podman && DOCKER="sudo podman" || DOCKER=docker
 hash mysql || {
   echo "Unable to find a mysql client. Please install one, using a command such as:"
   echo "sudo dnf install mariadb"
+  exit 1
 }
 
 check_if_db_alive() {
@@ -36,7 +37,7 @@ start_mariadb() {
         --env='MARIADB_USER=expenses' \
         --env='MARIADB_PASSWORD=dummypass' \
         --env='MYSQL_ROOT_PASSWORD=dummypass' \
-        mariadb:latest
+        mariadb:lts
     echo "Waiting for the db to come up..."
     local count=0
     while ! check_if_db_alive; do
