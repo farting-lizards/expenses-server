@@ -12,14 +12,19 @@ import java.sql.Timestamp;
 
 @AllArgsConstructor
 @RestController
-@RequestMapping("/api/discover")
+@RequestMapping("/api/expenses-in-review")
 public class DiscoverController {
 
     @Autowired WiseService wiseService;
 
     // dates are in format 'YYYY-MM-DD' (i.e., no time info is provided)
-    @GetMapping
+    @GetMapping("/discover")
     public int discoverExpenses(@RequestParam String fromDate, @RequestParam String toDate) {
         return wiseService.discoverExpensesBetween(fromDate, toDate);
+    }
+
+    @GetMapping("/count")
+    public int getExpensesToReviewCount() {
+        return wiseService.getExpensesToReviewCount();
     }
 }

@@ -1,0 +1,1 @@
+alter table expenses_in_review modify column review_until timestamp not null default '1970-01-01 00:00:01.0'

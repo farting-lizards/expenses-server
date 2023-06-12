@@ -21,7 +21,7 @@
 
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
-INSERT INTO `accounts` VALUES (0,'fake account 1'),(1,'fake account 2'),(2,'fake account 3'),(3,'fake account 4');
+INSERT INTO `accounts` VALUES (0,'Joint Revolut'),(1,'Wise David'),(2,'Wise Dini'),(3,'Revolut David'),(4,'Revolut Dini');
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
 UNLOCK TABLES;
 
