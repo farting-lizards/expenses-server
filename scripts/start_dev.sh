@@ -22,6 +22,7 @@ check_if_backend_alive() {
 }
 
 main() {
+    mkdir -p .gradle
     $DOCKER build -f Dockerfile.dev -t expenses-server:dev
     $DOCKER rm -f expenses-server-dev || :
     db_host=$(hostname -i | grep -Po '192.168.1.\w*(?:$| )')
@@ -35,6 +36,8 @@ main() {
         --user $UID \
         --volume $PWD:/src:rw,z \
         --volume $PWD/../home-lab-secrets/:/home-lab-secrets:rw,z \
+        --volume $PWD/.gradle:/home/gradle/.gradle:rw,z \
+        --userns=keep-id \
         --publish  8080:8080 \
         --name expenses-server-dev \
         --detach \
@@ -57,6 +60,7 @@ main() {
         echo "Checking again in 5s..."
         sleep 5
     done
+    $DOCKER logs -f expenses-server-dev
 }
 
 main "$@"
