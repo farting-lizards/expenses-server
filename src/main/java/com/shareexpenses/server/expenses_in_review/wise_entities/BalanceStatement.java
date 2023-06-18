@@ -1,4 +1,4 @@
-package com.shareexpenses.server.discovery.wise_entities;
+package com.shareexpenses.server.expenses_in_review.wise_entities;
 
 import lombok.Getter;
 import lombok.Setter;

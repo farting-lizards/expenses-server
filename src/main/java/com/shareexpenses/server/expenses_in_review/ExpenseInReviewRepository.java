@@ -1,4 +1,4 @@
-package com.shareexpenses.server.discovery;
+package com.shareexpenses.server.expenses_in_review;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

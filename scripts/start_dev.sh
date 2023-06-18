@@ -33,8 +33,8 @@ main() {
         --tty \
         --interactive \
         --user $UID \
-        --volume $PWD:/src:rw \
-        --volume $PWD/../home-lab-secrets/:/home-lab-secrets:rw \
+        --volume $PWD:/src:rw,z \
+        --volume $PWD/../home-lab-secrets/:/home-lab-secrets:rw,z \
         --publish  8080:8080 \
         --name expenses-server-dev \
         --detach \

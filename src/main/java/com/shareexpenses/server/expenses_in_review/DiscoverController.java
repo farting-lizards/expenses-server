@@ -1,4 +1,4 @@
-package com.shareexpenses.server.discovery;
+package com.shareexpenses.server.expenses_in_review;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,7 @@ public class DiscoverController {
     }
 
     @GetMapping("/count")
-    public int getExpensesToReviewCount() {
+    public long getExpensesToReviewCount() {
         return wiseService.getExpensesToReviewCount();
     }
 }

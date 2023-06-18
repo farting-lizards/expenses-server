@@ -1,10 +1,10 @@
-package com.shareexpenses.server.discovery;
+package com.shareexpenses.server.expenses_in_review;
 
 import com.shareexpenses.server.config.AccountsConfig;
-import com.shareexpenses.server.discovery.wise_entities.Balance;
-import com.shareexpenses.server.discovery.wise_entities.BalanceStatement;
-import com.shareexpenses.server.discovery.wise_entities.Transaction;
 import com.shareexpenses.server.expenses.ExpensesRepository;
+import com.shareexpenses.server.expenses_in_review.wise_entities.Balance;
+import com.shareexpenses.server.expenses_in_review.wise_entities.BalanceStatement;
+import com.shareexpenses.server.expenses_in_review.wise_entities.Transaction;
 import com.shareexpenses.server.utils.DateTimeUtils;
 import com.shareexpenses.server.utils.DigitalSignatures;
 import lombok.SneakyThrows;
@@ -162,6 +162,10 @@ public class WiseService {
 
     private boolean isCreditTransaction(Transaction wiseTransaction) {
         return wiseTransaction.getType().equalsIgnoreCase("credit");
+    }
+
+    public long getExpensesToReviewCount() {
+        return this.expensesInReviewQueue.count();
     }
 
     class Wise2faErrorHandler extends DefaultResponseErrorHandler {
