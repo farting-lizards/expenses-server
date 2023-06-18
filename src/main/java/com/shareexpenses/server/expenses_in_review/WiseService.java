@@ -18,10 +18,10 @@ import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.TemporalAmount;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Slf4j
@@ -76,6 +76,16 @@ public class WiseService {
             });
         });
         return newTransactions.get();
+    }
+
+    public List<ExpenseInReview> startReview() {
+        List<ExpenseInReview> allExpenses = this.expensesInReviewQueue.findByReviewUntilBefore(Timestamp.from(Instant.now()));
+
+        Timestamp anHourFromNow = getAnHourFromNow();
+        allExpenses.stream().forEach(expense -> expense.setReviewUntil(anHourFromNow));
+        this.expensesInReviewQueue.saveAll(allExpenses);
+
+        return allExpenses;
     }
 
     // YYYY-MM-DD or  YYYY-MM-DD HH:MM:SS or TImestamp
@@ -141,7 +151,7 @@ public class WiseService {
                         ? null
                         : wiseTransaction.getDetails().getMerchant().getName()
                     )
-                    .reviewUntil(null)
+                    .reviewUntil(getAnHourAgo()) // Setting the reviewUntil date as an hour ago, makes them eligible to be reviewed right away.
                     .build();
 
                 expensesInReviewQueue.save(expenseInReview);
@@ -162,6 +172,16 @@ public class WiseService {
 
     private boolean isCreditTransaction(Transaction wiseTransaction) {
         return wiseTransaction.getType().equalsIgnoreCase("credit");
+    }
+
+    private Timestamp getAnHourAgo() {
+        var oneHourAgo = Instant.now().minus(Duration.ofHours(1));
+        return Timestamp.from(oneHourAgo);
+    }
+
+    private Timestamp getAnHourFromNow() {
+        var oneHourFromNow = Instant.now().plus(Duration.ofHours(1));
+        return Timestamp.from(oneHourFromNow);
     }
 
     public long getExpensesToReviewCount() {

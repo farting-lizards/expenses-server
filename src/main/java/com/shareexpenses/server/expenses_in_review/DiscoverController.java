@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.sql.Timestamp;
+import java.util.List;
 
 @AllArgsConstructor
 @RestController
@@ -27,4 +28,7 @@ public class DiscoverController {
     public long getExpensesToReviewCount() {
         return wiseService.getExpensesToReviewCount();
     }
+
+    @GetMapping("/start-review")
+    public List<ExpenseInReview> startReview() { return  wiseService.startReview(); }
 }
