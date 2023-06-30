@@ -20,6 +20,7 @@ jobs:
           path: "expenses-server"
       - name: start app
         run: |
+          set -x
           cd expenses-server
           ./scripts/start_devdb.sh populate
 
