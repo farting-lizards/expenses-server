@@ -24,11 +24,16 @@ check_if_backend_alive() {
 main() {
     mkdir -p .gradle
     $DOCKER build -f Dockerfile.dev -t expenses-server:dev
-    $DOCKER rm -f expenses-server-dev || :
-    db_host=$(hostname -i | grep -Po '192.168.1.\w*(?:$| )')
+    $DOCKER rm -f expenses-server-dev || : 2>/dev/null
+    db_host="$(hostname -i | grep -Po '192.168.1.\w*(?:$| )' || :)"
+    do_tail=yes
     if [[ $db_host == "" ]]; then
         # fallback in case we run on ci
         db_host=$(hostname -i | awk '{print $1}')
+    fi
+    if [[ "${1:-}" == "notail" ]]; then
+        do_tail=no
+        shift
     fi
     $DOCKER run \
         --tty \
@@ -60,7 +65,9 @@ main() {
         echo "Checking again in 5s..."
         sleep 5
     done
-    $DOCKER logs -f expenses-server-dev
+    if [[ "$do_tail" == "yes" ]]; then
+        $DOCKER logs -f expenses-server-dev
+    fi
 }
 
 main "$@"

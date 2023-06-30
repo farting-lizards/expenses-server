@@ -61,6 +61,7 @@ DROP TABLE IF EXISTS `expense_sequence`;
 CREATE TABLE `expense_sequence` (
   `next_val` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `expense_sequence` VALUES (1);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -105,18 +106,6 @@ CREATE TABLE `expenses_in_review` (
   `account_id` bigint(20) NOT NULL,
   PRIMARY KEY (`external_id`),
   UNIQUE KEY `external_id_UNIQUE` (`external_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Table structure for table `hibernate_sequence`
---
-
-DROP TABLE IF EXISTS `hibernate_sequence`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `hibernate_sequence` (
-  `next_val` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 

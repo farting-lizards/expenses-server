@@ -27,7 +27,7 @@ check_if_db_alive() {
 
 start_mariadb() {
     local name="expenses_devdb"
-    $DOCKER rm -f "$name" || :
+    $DOCKER rm -f "$name" || : 2>/dev/null
     $DOCKER run \
         --name="$name" \
         --detach \
