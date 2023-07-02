@@ -81,8 +81,7 @@ public class WiseService {
     public List<ExpenseInReview> startReview() {
         List<ExpenseInReview> allExpenses = this.expensesInReviewQueue.findByReviewUntilBefore(Timestamp.from(Instant.now()));
 
-        Timestamp anHourFromNow = getAnHourFromNow();
-        allExpenses.stream().forEach(expense -> expense.setReviewUntil(anHourFromNow));
+        allExpenses.stream().forEach(expense -> expense.setReviewUntil(getAnHourFromNow()));
         this.expensesInReviewQueue.saveAll(allExpenses);
 
         return allExpenses;
