@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.DefaultResponseErrorHandler;
 import org.springframework.web.client.RestTemplate;
 import java.io.IOException;
@@ -85,6 +86,13 @@ public class WiseService {
         this.expensesInReviewQueue.saveAll(allExpenses);
 
         return allExpenses;
+    }
+
+    @Transactional
+    public void releaseExpenses(List<String> expenseIds) {
+        expenseIds.forEach(expenseId -> {
+            this.expensesInReviewQueue.updateReviewUntilForExternalId(expenseId);
+        });
     }
 
     // YYYY-MM-DD or  YYYY-MM-DD HH:MM:SS or TImestamp

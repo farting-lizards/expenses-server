@@ -3,10 +3,7 @@ package com.shareexpenses.server.expenses_in_review;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
 import java.util.List;
@@ -31,4 +28,9 @@ public class DiscoverController {
 
     @GetMapping("/start-review")
     public List<ExpenseInReview> startReview() { return  wiseService.startReview(); }
+
+    @PostMapping("/release")
+    public void releaseExpenses(@RequestBody List<String> expenseIds) {
+        wiseService.releaseExpenses(expenseIds);
+    }
 }
