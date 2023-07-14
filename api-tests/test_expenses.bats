@@ -48,7 +48,7 @@ setup() {
     run do_post "api/expenses" "$new_expense"
 
     [[ "$status" == "0" ]]
-    json_has_match 'amount' '42.0' "$output"
+    json_has_match 'amount' '42' "$output"
     json_has_match 'category' 'eating-out' "$output"
     json_has_match 'description' 'Some fake expense number 1' "$output"
     json_has_match 'account.id' '1' "$output"
@@ -66,7 +66,7 @@ setup() {
     run do_post "api/expenses" "$new_expense"
 
     [[ "$status" == "0" ]]
-    json_has_match 'amount' '42.0' "$output"
+    json_has_match 'amount' '42' "$output"
 
     new_expense_id="$(echo "$output" | json_get "id")"
     modified_expense='{
@@ -80,11 +80,11 @@ setup() {
     run do_put "api/expenses/$new_expense_id" "$modified_expense"
 
     [[ "$status" == "0" ]]
-    json_has_match "amount" '84.0' "$output"
+    json_has_match "amount" '84' "$output"
 
     run do_get "api/expenses"
 
-    json_has_match "[] | select( .id == $new_expense_id) | .amount" '84.0' "$output"
+    json_has_match "[] | select( .id == $new_expense_id) | .amount" '84' "$output"
 }
 
 @test "I can delete an expense" {
@@ -99,7 +99,7 @@ setup() {
     run do_post "api/expenses" "$new_expense"
 
     [[ "$status" == "0" ]]
-    json_has_match 'amount' '42.0' "$output"
+    json_has_match 'amount' '42' "$output"
 
     new_expense_id="$(echo "$output" | json_get "id")"
 
