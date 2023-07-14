@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -30,7 +31,7 @@ public class ExpensesService {
     return expensesRepository.findAll();
   }
 
-  public Expense addExpense(IncomingExpenseDTO newExpense) {
+  public Expense addExpense(IncomingExpenseDTO newExpense, Optional<String> externalId) {
     Account account = this.accountRepository
         .findById(newExpense.getAccountId())
         .orElseThrow(() -> new EntityNotFoundException("No account found with id " + newExpense.getAccountId() + "."));
@@ -43,6 +44,7 @@ public class ExpensesService {
         .timestamp(newExpense.getTimestamp())
         .account(account)
         .category(newExpense.getCategory())
+        .externalId(externalId.orElse(null))
         .build();
     return this.expensesRepository.save(expense);
   }

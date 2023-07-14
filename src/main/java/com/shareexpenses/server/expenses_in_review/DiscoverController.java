@@ -1,11 +1,11 @@
 package com.shareexpenses.server.expenses_in_review;
 
+import com.shareexpenses.server.expenses.Expense;
+import com.shareexpenses.server.expenses.IncomingExpenseDTO;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
 import java.util.List;
 
 @AllArgsConstructor
@@ -33,4 +33,15 @@ public class DiscoverController {
     public void releaseExpenses(@RequestBody List<String> expenseIds) {
         wiseService.releaseExpenses(expenseIds);
     }
+
+    @PostMapping("/{externalId}")
+    public Expense acceptExpenses(@PathVariable String externalId, @RequestBody IncomingExpenseDTO updatedExpense) {
+        return wiseService.acceptExpense(externalId, updatedExpense);
+    }
+
+    @DeleteMapping("/{externalId}")
+    public void rejectExpense(@PathVariable String externalId) {
+        wiseService.rejectExpense(externalId);
+    }
+
 }

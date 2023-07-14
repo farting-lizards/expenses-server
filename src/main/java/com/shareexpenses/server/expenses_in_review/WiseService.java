@@ -1,7 +1,10 @@
 package com.shareexpenses.server.expenses_in_review;
 
 import com.shareexpenses.server.config.AccountsConfig;
+import com.shareexpenses.server.expenses.Expense;
 import com.shareexpenses.server.expenses.ExpensesRepository;
+import com.shareexpenses.server.expenses.ExpensesService;
+import com.shareexpenses.server.expenses.IncomingExpenseDTO;
 import com.shareexpenses.server.expenses_in_review.wise_entities.Balance;
 import com.shareexpenses.server.expenses_in_review.wise_entities.BalanceStatement;
 import com.shareexpenses.server.expenses_in_review.wise_entities.Transaction;
@@ -21,7 +24,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
 import java.time.Duration;
 import java.time.Instant;
-import java.time.temporal.TemporalAmount;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,6 +36,9 @@ public class WiseService {
 
     @Autowired
     private ExpensesRepository expensesRepository;
+
+    @Autowired
+    private ExpensesService expensesService;
 
     @Autowired
     private DateTimeUtils dateTimeUtils;
@@ -129,6 +134,7 @@ public class WiseService {
             RestTemplate authTemplate = new RestTemplate();
             HttpEntity authRequest = new HttpEntity(authorizedHeaders);
             ResponseEntity<BalanceStatement> balanceStatement = authTemplate.exchange(statementUrl, HttpMethod.GET, authRequest, BalanceStatement.class, params);
+
             log.info("Balance Statement after 2fa approval {}", balanceStatement.getBody());
 
             AtomicInteger newUnreviewedTransactions = new AtomicInteger();
@@ -137,8 +143,6 @@ public class WiseService {
                 log.info("Checking wise transaction {}", wiseTransaction.getReferenceNumber());
 
                 if(isCreditTransaction(wiseTransaction)
-                    || expensesInReviewQueue.existsById(wiseTransaction.getReferenceNumber())
-                    || expensesRepository.existsByExternalId(wiseTransaction.getReferenceNumber())
                 ) {
                     // We can ignore the `wiseTransaction` if it represents a credit (money added to TW account)
                     // or if it is already added in the expensesInReview table
@@ -193,6 +197,15 @@ public class WiseService {
 
     public long getExpensesToReviewCount() {
         return this.expensesInReviewQueue.count();
+    }
+
+    public Expense acceptExpense(String externalId, IncomingExpenseDTO updatedExpense) {
+        this.expensesInReviewQueue.deleteById(externalId);
+        return this.expensesService.addExpense(updatedExpense, Optional.of(externalId));
+    }
+
+    public void rejectExpense(String externalId) {
+        this.expensesInReviewQueue.deleteById(externalId);
     }
 
     class Wise2faErrorHandler extends DefaultResponseErrorHandler {
