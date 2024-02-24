@@ -4,6 +4,9 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+CURFILE="$(realpath $0)"
+PROJECTDIR="${CURFILE%/*/*}"
+
 hash podman && DOCKER="sudo podman" || DOCKER=docker
 
 
@@ -22,7 +25,8 @@ check_if_backend_alive() {
 }
 
 main() {
-    mkdir -p .gradle
+    mkdir -p "$PROJECTDIR"/.gradle
+    rm -rf "$PROJECTDIR/.gradle/caches"
     $DOCKER build -f Dockerfile.dev -t expenses-server:dev
     $DOCKER rm -f expenses-server-dev || : 2>/dev/null
     db_host="$(hostname -i | grep -Po '192.168.1.\w*(?:$| )' || :)"
@@ -39,9 +43,9 @@ main() {
         --tty \
         --interactive \
         --user $UID \
-        --volume $PWD:/src:rw,z \
-        --volume $PWD/../home-lab-secrets/:/home-lab-secrets:rw,z \
-        --volume $PWD/.gradle:/home/gradle/.gradle:rw,z \
+        --volume $PROJECTDIR:/src:rw,z \
+        --volume $PROJECTDIR/../home-lab-secrets/:/home-lab-secrets:rw,z \
+        --volume $PROJECTDIR/.gradle:/home/gradle/.gradle:rw,z \
         --userns=keep-id \
         --publish  8080:8080 \
         --name expenses-server-dev \
@@ -49,7 +53,7 @@ main() {
         expenses-server:dev \
         "/src/gradlew"\
         "bootRun" \
-        "--args='--spring.datasource.url=jdbc:mysql://${db_host}:3306/expenses'" \
+        "--args=--spring.datasource.url=jdbc:mysql://${db_host}:3306/expenses --spring.datasource.password=dummypass" \
         "$@"
 
 
