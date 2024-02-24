@@ -1,0 +1,39 @@
+name: CI
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Install packages
+        run: |
+          sudo apt update
+          sudo apt-get -y install podman python3-virtualenv jq
+          python -m virtualenv tests-venv
+          source tests-venv/bin/activate
+          pip install bats-core-pkg
+      - name: Get source
+        uses: actions/checkout@v3
+        with:
+          path: "expenses-server"
+      - name: start app
+        run: |
+          set -x
+          cd expenses-server
+          ./scripts/start_devdb.sh
+
+          # fake accoutns config
+          mkdir -p ../home-lab-secrets/home_automation/expenses/
+          echo "accounts-config: {'accounts': []}" > ../home-lab-secrets/home_automation/expenses/application-accounts.yml
+
+          ./scripts/start_dev.sh notail
+      - name: run tests
+        run: |
+          source tests-venv/bin/activate
+          cd expenses-server
+          bats_core_pkg --verbose-run --trace api-tests/

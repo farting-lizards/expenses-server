@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @AllArgsConstructor
 @RestController
@@ -20,7 +21,7 @@ public class ExpensesController {
 
   @PostMapping
   public Expense addExpense(@RequestBody IncomingExpenseDTO incomingExpenseDTO) {
-    return this.expensesService.addExpense(incomingExpenseDTO);
+    return this.expensesService.addExpense(incomingExpenseDTO, Optional.empty());
   }
 
   @PutMapping("/{expenseId}")

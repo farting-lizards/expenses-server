@@ -21,7 +21,7 @@
 
 LOCK TABLES `accounts` WRITE;
 /*!40000 ALTER TABLE `accounts` DISABLE KEYS */;
-INSERT INTO `accounts` VALUES (0,'fake account 1'),(1,'fake account 2');
+INSERT INTO `accounts` VALUES (0,'Joint Revolut'),(1,'Wise David'),(2,'Wise Dini'),(3,'Revolut David'),(4,'Revolut Dini');
 /*!40000 ALTER TABLE `accounts` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -41,18 +41,8 @@ UNLOCK TABLES;
 
 LOCK TABLES `expenses` WRITE;
 /*!40000 ALTER TABLE `expenses` DISABLE KEYS */;
-INSERT INTO `expenses` VALUES (2,29.90,'EUR','2021-08-14 00:00:00','eating-out','Pizza',1),(3,4.10,'EUR','2021-08-14 00:00:00','eating-out','Pain au Chocolat',1),(4,38.99,'EUR','2021-08-13 00:00:00','groceries','Grand frais',1)
+INSERT INTO `expenses` VALUES (2,29.90,'EUR','2021-08-14 00:00:00','eating-out','Pizza',1, NULL),(3,4.10,'EUR','2021-08-14 00:00:00','eating-out','Pain au Chocolat',1, "somedummyexternalid"),(4,38.99,'EUR','2021-08-13 00:00:00','groceries','Grand frais',1, NULL);
 /*!40000 ALTER TABLE `expenses` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Dumping data for table `hibernate_sequence`
---
-
-LOCK TABLES `hibernate_sequence` WRITE;
-/*!40000 ALTER TABLE `hibernate_sequence` DISABLE KEYS */;
-INSERT INTO `hibernate_sequence` VALUES (1);
-/*!40000 ALTER TABLE `hibernate_sequence` ENABLE KEYS */;
 UNLOCK TABLES;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;

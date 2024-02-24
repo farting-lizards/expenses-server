@@ -1,4 +1,4 @@
--- MariaDB dump 10.19  Distrib 10.5.18-MariaDB, for Linux (x86_64)
+-- MariaDB dump 10.19  Distrib 10.5.19-MariaDB, for Linux (x86_64)
 --
 -- Host: 127.0.0.1    Database: expenses
 -- ------------------------------------------------------
@@ -31,6 +31,27 @@ CREATE TABLE `accounts` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `expense`
+--
+
+DROP TABLE IF EXISTS `expense`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `expense` (
+  `id` bigint(20) NOT NULL,
+  `amount` double NOT NULL,
+  `category` varchar(255) NOT NULL,
+  `currency` int(11) NOT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `time` datetime(6) NOT NULL,
+  `account_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FKl7p96uyhqlv3raecactp2uet4` (`account_id`),
+  CONSTRAINT `FKl7p96uyhqlv3raecactp2uet4` FOREIGN KEY (`account_id`) REFERENCES `account` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `expense_sequence`
 --
 
@@ -40,6 +61,7 @@ DROP TABLE IF EXISTS `expense_sequence`;
 CREATE TABLE `expense_sequence` (
   `next_val` bigint(20) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+INSERT INTO `expense_sequence` VALUES (1);
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -57,6 +79,7 @@ CREATE TABLE `expenses` (
   `category` varchar(45) NOT NULL,
   `description` varchar(200) DEFAULT NULL,
   `account_id` int(11) NOT NULL,
+  `external_id` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   KEY `account_idx` (`account_id`),
@@ -65,14 +88,39 @@ CREATE TABLE `expenses` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Table structure for table `hibernate_sequence`
+-- Table structure for table `expenses_in_review`
 --
 
-DROP TABLE IF EXISTS `hibernate_sequence`;
+DROP TABLE IF EXISTS `expenses_in_review`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
-CREATE TABLE `hibernate_sequence` (
-  `next_val` bigint(20) DEFAULT NULL
+CREATE TABLE `expenses_in_review` (
+  `external_id` varchar(255) NOT NULL,
+  `date` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `amount` float NOT NULL,
+  `currency` varchar(10) NOT NULL,
+  `external_category` varchar(255) DEFAULT NULL,
+  `description` varchar(255) DEFAULT NULL,
+  `merchant_name` varchar(255) DEFAULT NULL,
+  `review_until` timestamp NULL DEFAULT NULL,
+  `account_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`external_id`),
+  UNIQUE KEY `external_id_UNIQUE` (`external_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `user`
+--
+
+DROP TABLE IF EXISTS `user`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `user` (
+  `id` int(11) NOT NULL,
+  `email` varchar(255) DEFAULT NULL,
+  `name` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -85,4 +133,4 @@ CREATE TABLE `hibernate_sequence` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-12-11 20:37:14
+-- Dump completed on 2023-06-04 18:52:57

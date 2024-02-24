@@ -4,6 +4,12 @@ set -o errexit
 set -o nounset
 set -o pipefail
 
+hash podman && DOCKER="sudo podman" || DOCKER=docker
+hash mysql || {
+  echo "Unable to find a mysql client. Please install one, using a command such as:"
+  echo "sudo dnf install mariadb"
+  exit 1
+}
 
 check_if_db_alive() {
     mysql \
@@ -21,8 +27,8 @@ check_if_db_alive() {
 
 start_mariadb() {
     local name="expenses_devdb"
-    docker rm -f "$name" || :
-    docker run \
+    $DOCKER rm -f "$name" || : 2>/dev/null
+    $DOCKER run \
         --name="$name" \
         --detach \
         --publish=3306:3306 \
@@ -31,16 +37,17 @@ start_mariadb() {
         --env='MARIADB_USER=expenses' \
         --env='MARIADB_PASSWORD=dummypass' \
         --env='MYSQL_ROOT_PASSWORD=dummypass' \
-        mariadb:latest
+        mariadb:lts
     echo "Waiting for the db to come up..."
     local count=0
     while ! check_if_db_alive; do
         count=$((count + 1))
         if [[ $count -ge 5 ]]; then
             echo "The db container never came up!"
+            echo "You might want to try running with sudo :/"
             return 1
         fi
-        echo "Checking againg in 5s..."
+        echo "Checking again in 5s..."
         sleep 5
     done
     return 0
@@ -57,6 +64,18 @@ create_db() {
         < db/schema.sql
 }
 
+populate_db() {
+    echo "populating with dummy data"
+    mysql \
+        --host 127.0.0.1 \
+        --port 3306 \
+        --protocol=tcp \
+        --user expenses \
+        --password='dummypass' \
+        expenses \
+        < db/fake_data.sql
+}
+
 
 
 main() {
@@ -64,6 +83,9 @@ main() {
     create_db
     echo "Your development db is now ready, you can access it with:"
     echo "    mysql --host=127.0.0.1 --port=3306 --protocol=tcp --user=expenses --password=dummypass expenses"
+    if [[ ${1:-""} == "populate" ]]; then
+        populate_db
+    fi
 }
 
 

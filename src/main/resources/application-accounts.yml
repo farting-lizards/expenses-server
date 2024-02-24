@@ -1,0 +1,13 @@
+# Example accounts configuration
+accounts-config:
+  accounts:
+    - owner: "david"
+      type: "transferwise"
+      profile-id: "dummy-david-profile-id"
+      api-bearer-token: "dummy-david-bearer-token"
+      private-key: "some-david-private-key"
+    - owner: "dinika"
+      type: "transferwise"
+      profile-id: "dummy-dini-profile-id"
+      api-bearer-token: "dummy-dini-bearer-token"
+      private-key: "some-dini-private-key"

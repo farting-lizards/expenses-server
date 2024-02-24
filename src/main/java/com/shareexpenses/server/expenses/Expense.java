@@ -15,10 +15,13 @@ import java.time.Instant;
 @NoArgsConstructor
 @AllArgsConstructor
 @SequenceGenerator(name="expense_sequence", initialValue=1, allocationSize=100)
-public class Expense  {
+public class Expense {
   @Id
   @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "expense_sequence")
   private Long id;
+
+  @Column(nullable = true)
+  private String externalId;
 
   @Column(nullable = false)
   private Double amount;
